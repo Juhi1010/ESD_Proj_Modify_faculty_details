@@ -23,6 +23,8 @@ public class Employee {
         @Column(name = "last_name", nullable = false, length = 255)
         private String lastName;
 
+        @Getter
+        @Setter
         @Column(name = "email", unique = true, nullable = false)
         private String email;
 

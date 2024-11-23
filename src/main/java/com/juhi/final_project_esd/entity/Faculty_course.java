@@ -21,9 +21,14 @@ public class Faculty_course {
                 this.course_id = courseId;
         }
 
-        public void setFacultyId(Long employeeId) {
-                this.faculty_id = employeeId;
+        public void setFacultyId(Long faculty_id) {
+                this.faculty_id = faculty_id;
         }
+
+        public String getCourseId() {
+                return course_id;
+        }
+
 }
 
 
