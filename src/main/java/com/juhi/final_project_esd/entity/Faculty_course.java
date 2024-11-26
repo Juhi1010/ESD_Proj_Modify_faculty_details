@@ -11,24 +11,27 @@ public class Faculty_course {
         @Column(name = "pk")
         private Long pk;
 
-        @Column(name = "faculty_id", length = 50)
-        private Long faculty_id;
+        @Column(name = "facultyId", length = 50)
+        private Long facultyId;
 
         @Column(name = "course_id", length = 50)
-        private String course_id;
+        private String courseId;
 
         public void setCourseId(String courseId) {
-                this.course_id = courseId;
+                this.courseId = courseId;
         }
 
-        public void setFacultyId(Long faculty_id) {
-                this.faculty_id = faculty_id;
+        public void setFacultyId(Long facultyId) {
+                this.facultyId = facultyId;
         }
 
         public String getCourseId() {
-                return course_id;
+                return this.courseId;
         }
 
+        public Long getFacultyId() {
+                return this.facultyId;
+        }
 }
 
 

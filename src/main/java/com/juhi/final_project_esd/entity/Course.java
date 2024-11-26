@@ -11,8 +11,8 @@ public class Course {
         @Column(name = "course_id")
         private Long courseId;
 
-        @Column(name = "course_code", length = 50, nullable = false, unique = true)
-        private String course_code;
+        @Column(name = "courseCode", length = 50, nullable = false, unique = true)
+        private String courseCode;
 
         @Column(name = "name", nullable = false, length = 255)
         private String name;
@@ -33,8 +33,16 @@ public class Course {
         private Long capcity;
 
         public String getCourseCode() {
-                return course_code;
+                return courseCode;
         }
+
+        public String getName() {
+                return name;
+        }
+
+            public Long getId() {
+                        return courseId;
+            }
 }
 
 

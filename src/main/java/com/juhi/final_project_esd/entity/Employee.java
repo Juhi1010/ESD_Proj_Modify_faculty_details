@@ -1,9 +1,11 @@
 package com.juhi.final_project_esd.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+//@Builder
 @Entity
 @Table(name = "Employees")
 public class Employee {
