@@ -55,6 +55,9 @@ public class Employee {
         }
 
 
+        public void setPhotoPath(String photoPath) {
+                this.photoPath = photoPath;
+        }
 }
 
 

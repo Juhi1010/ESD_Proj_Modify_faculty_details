@@ -6,7 +6,6 @@ import jakarta.validation.constraints.*;
 public class CourseUpdateRequest {
         private String courseName;  // The name of the course the employee should be mapped to
 
-        // Getters and setters
         public String getCourseName() {
                 return courseName;
         }

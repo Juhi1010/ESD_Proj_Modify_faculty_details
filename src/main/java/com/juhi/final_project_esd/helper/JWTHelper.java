@@ -61,7 +61,6 @@ public class JWTHelper {
     // Validate token
     public Boolean validateToken(String token) {
         final String extractedUsername = extractUsername(token);
-//        return (extractedUsername.equals(username) && !isTokenExpired(token));
         return !isTokenExpired(token);
     }
 

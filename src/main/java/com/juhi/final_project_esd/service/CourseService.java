@@ -21,10 +21,6 @@ public class CourseService {
         this.facultyCourseRepo = facultyCourseRepo;
     }
 
-//    public List<Course> getAllCourses() {
-//        return courseRepo.findAll(); // Fetch all courses from the database
-//    }
-
     public List<CourseDTO> getAllCourses() {
         return courseRepo.findAll().stream()
                 .map(course -> new CourseDTO(course.getCourseCode(), course.getName()))

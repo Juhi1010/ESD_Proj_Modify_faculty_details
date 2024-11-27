@@ -1,6 +1,5 @@
 package com.juhi.final_project_esd.dto;
 
-import com.juhi.final_project_esd.entity.Course;
 
 public class FacultyCourse {
 
@@ -8,17 +7,14 @@ public class FacultyCourse {
     private String employeeEmail;
     private String courseId;
 
-    // Default constructor
     public FacultyCourse() {}
 
-    // Constructor
     public FacultyCourse(Long id, String employeeEmail, String courseId) {
         this.id = id;
         this.employeeEmail = employeeEmail;
         this.courseId = courseId;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -43,7 +39,6 @@ public class FacultyCourse {
         this.courseId = courseId;
     }
 
-    // toString method for debugging
     @Override
     public String toString() {
         return "FacultyCourseDTO{" +
@@ -57,7 +52,6 @@ public class FacultyCourse {
     public String getCourse() {
         return courseId;
     }
-
 
 }
 

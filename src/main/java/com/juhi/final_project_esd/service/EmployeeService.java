@@ -1,7 +1,7 @@
 package com.juhi.final_project_esd.service;
 
 import com.juhi.final_project_esd.dto.*;
-//import com.juhi.final_project_esd.dto.FacultyRegisterDTO;
+import org.springframework.beans.factory.annotation.Value;
 import com.juhi.final_project_esd.entity.Course;
 import com.juhi.final_project_esd.entity.Employee;
 import com.juhi.final_project_esd.entity.Faculty_course;
@@ -9,21 +9,21 @@ import com.juhi.final_project_esd.exception.CustomerNotFoundException;
 import com.juhi.final_project_esd.helper.EncryptionService;
 import com.juhi.final_project_esd.helper.JWTHelper;
 import com.juhi.final_project_esd.mapper.EmployeeMapper;
-//import com.juhi.final_project_esd.mapper.RegisterFacultyMapper;
 import com.juhi.final_project_esd.repo.CourseRepo;
 import com.juhi.final_project_esd.repo.FacultyCourseRepo;
 import com.juhi.final_project_esd.repo.FacultyRepo;
-import jakarta.annotation.Resource;
-import jakarta.validation.Valid;
+import org.springframework.core.io.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,7 +39,10 @@ public class EmployeeService {
     private final EncryptionService encryptionService;
     private final JWTHelper jwtHelper;
     private final EmployeeMapper employeeMapper;
-//    private final RegisterFacultyMapper registerFacultyMapper;
+    private RestTemplate restTemplate;
+
+    @Value("${employee.images.base-path}")
+    private String imageBasePath;
 
 
     public Employee getEmployee(String email) {
@@ -124,7 +127,7 @@ public class EmployeeService {
     }
 
     public List<String> getRegisteredCourseNames(String token) {
-        // Validate the token and extract employee ID
+
         token = jwtHelper.removeBearerFromToken(token);
         if (!jwtHelper.validateToken(token)) {
             throw new IllegalArgumentException("Invalid token");
@@ -132,13 +135,11 @@ public class EmployeeService {
 
         Long facultyId = jwtHelper.extractEmployeeId(token);
 
-        // Fetch the course IDs from faculty_courses
         List<Faculty_course> facultyCourses = facultyCourseRepo.findByFacultyId(facultyId);
         List<String> courseIds = facultyCourses.stream()
                 .map(Faculty_course::getCourseId)
                 .collect(Collectors.toList());
 
-        // Fetch the course names from the courses table
         List<Course> courses = courseRepo.findByCourseCodeIn(courseIds);
         return courses.stream()
                 .map(Course::getName)
@@ -146,29 +147,75 @@ public class EmployeeService {
     }
 
 
+    public Employee saveImage(Long employeeId, MultipartFile file) throws IOException {
 
-//    public List<Map<String, String>> getRegisteredCourseNames(String token) {
-//        token = jwtHelper.removeBearerFromToken(token);
-//        if (!jwtHelper.validateToken(token)) {
-//            throw new IllegalArgumentException("Invalid token");
-//        }
-//
-//        Long facultyId = jwtHelper.extractEmployeeId(token);
-//
-//        // Fetch faculty courses
-//        List<Faculty_course> facultyCourses = facultyCourseRepo.findByFacultyId(facultyId);
-//
-//        // Fetch course details
-//        List<String> courseIds = facultyCourses.stream()
-//                .map(Faculty_course::getCourseId)
-//                .collect(Collectors.toList());
-//        List<Course> courses = courseRepo.findByCourseCodeIn(courseIds);
-//
-//        // Map courseCode and name
-//        return courses.stream()
-//                .map(course -> Map.of("courseCode", course.getCourseCode(), "name", course.getName()))
-//                .collect(Collectors.toList());
-//    }
-//
+        Optional<Employee> optionalEmployee = facultyRepo.findById(employeeId);
+        if (optionalEmployee.isEmpty()) {
+            throw new IllegalArgumentException("Employee not found with ID: " + employeeId);
+        }
+
+        Employee employee = optionalEmployee.get();
+
+        Path directoryPath = Paths.get(imageBasePath);
+        if (!Files.exists(directoryPath)) {
+            Files.createDirectories(directoryPath);
+        }
+
+        String fileName = employeeId + "_" + file.getOriginalFilename();
+        Path filePath = directoryPath.resolve(fileName);
+        Files.copy(file.getInputStream(), filePath);
+
+        employee.setPhotoPath(fileName);
+        return facultyRepo.save(employee);
+    }
+
+    public Resource getImage(String fileName) throws Exception {
+
+        Path imagePath = Paths.get(imageBasePath).resolve(fileName);
+        Resource resource = new UrlResource(imagePath.toUri());
+
+        if (!resource.exists() || !resource.isReadable()) {
+            throw new RuntimeException("Image not found or not readable");
+        }
+
+        return resource;
+    }
+
+    public MediaType getImageContentType(String fileName) {
+        String fileExtension = getFileExtension(fileName);
+
+        switch (fileExtension) {
+            case "jpg":
+            case "jpeg":
+                return MediaType.IMAGE_JPEG;
+            case "png":
+                return MediaType.IMAGE_PNG;
+            case "gif":
+                return MediaType.IMAGE_GIF;
+            default:
+                return MediaType.APPLICATION_OCTET_STREAM;
+        }
+    }
+
+    private String getFileExtension(String fileName) {
+        int lastDotIndex = fileName.lastIndexOf('.');
+        return (lastDotIndex == -1) ? "" : fileName.substring(lastDotIndex + 1).toLowerCase();
+    }
+
+
+    public void removeCourseByEmployeeAndCourseName(String courseName, String token) throws Exception {
+
+        token = jwtHelper.removeBearerFromToken(token);
+        if (!jwtHelper.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid token");
+        }
+
+        Long facultyId = jwtHelper.extractEmployeeId(token);
+
+        Course course = courseRepo.findByName(courseName);
+
+        facultyCourseRepo.deleteByEmployeeIdAndCourseCode(facultyId, course.getCourseCode());
+    }
+
 
 }

@@ -20,12 +20,6 @@ public class CourseController {
     public CourseController(CourseService courseService) {
         this.courseService = courseService;
     }
-//
-//    @GetMapping
-//    public ResponseEntity<List<Course>> getAllCourses() {
-//        List<Course> courses = courseService.getAllCourses();
-//        return ResponseEntity.ok(courses);
-//    }
 
     @GetMapping
     public ResponseEntity<List<CourseDTO>> getAllCourses() {
